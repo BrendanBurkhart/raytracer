@@ -16,7 +16,7 @@ fn main() {
 
     let rendering_task = load::load_scene(path::Path::new(&args[1])).expect("Scene file should load successfully");
 
-    let image = rendering_task.camera.render(&rendering_task.scene, 15);
+    let image = rendering_task.execute();
     image
         .save_with_format(path::Path::new(&rendering_task.output_file), image::ImageFormat::Png)
         .expect("Saving output file should succeed!");

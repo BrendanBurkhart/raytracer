@@ -69,13 +69,7 @@ fn parse_scene_description(file: &path::Path) -> Result<SceneDescription, io::Er
     Ok(description)
 }
 
-pub struct RenderTask {
-    pub scene: scene::Scene,
-    pub camera: render::Camera,
-    pub output_file: String,
-}
-
-pub fn load_scene(scene_file: &path::Path) -> Result<RenderTask, io::Error> {
+pub fn load_scene(scene_file: &path::Path) -> Result<render::RenderTask, io::Error> {
     let scene_description =
         parse_scene_description(scene_file).expect("Scene file should load correctly");
 
@@ -89,7 +83,7 @@ pub fn load_scene(scene_file: &path::Path) -> Result<RenderTask, io::Error> {
 
     let full_scene = scene::Scene::new(materials, objects, lights);
 
-    let task = RenderTask {
+    let task = render::RenderTask {
         scene: full_scene,
         camera,
         output_file: scene_description.output_file,

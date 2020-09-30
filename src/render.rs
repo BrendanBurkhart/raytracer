@@ -7,6 +7,18 @@ use super::scene;
 
 pub mod lens;
 
+pub struct RenderTask {
+    pub scene: scene::Scene,
+    pub camera: Camera,
+    pub output_file: String,
+}
+
+impl RenderTask {
+    pub fn execute(&self) -> image::RgbImage {
+        self.camera.render(&self.scene, 15)
+    }
+}
+
 pub struct Camera {
     image_width: u32,
     image_height: u32,
@@ -32,7 +44,7 @@ impl Camera {
         }
     }
 
-    pub fn render(&self, scene: &scene::Scene, max_reflections: u32) -> image::RgbImage {
+    fn render(&self, scene: &scene::Scene, max_reflections: u32) -> image::RgbImage {
         let mut output = std::iter::repeat(0 as u8)
             .take(self.depth * self.size)
             .collect::<Vec<_>>();
