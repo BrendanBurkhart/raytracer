@@ -1,16 +1,16 @@
 {
-  "image_width": 1920,
-  "image_height": 1080,
+  "image_width": 3840,
+  "image_height": 2160,
   "view_width": 42,
   "view_height": 23.625,
   "camera_position": {
-    "x": 100.0,
-    "y": 75.0,
-    "z": -120.0
+    "x": 2.0,
+    "y": 15.0,
+    "z": 25.0
   },
   "camera_target": {
     "x": 0.0,
-    "y": 40.0,
+    "y": 0.0,
     "z": 0.0
   },
   "camera_roll": 0.0,

@@ -1,7 +1,8 @@
-use crate::lighting;
-use crate::linear_algebra as la;
-use crate::primitive;
+use super::linear;
 use std::f64;
+
+pub mod lighting;
+pub mod primitive;
 
 pub struct Scene {
     pub materials: Vec<lighting::Material>,
@@ -11,9 +12,24 @@ pub struct Scene {
 }
 
 impl Scene {
+    pub fn new(
+        materials: Vec<lighting::Material>,
+        objects: Vec<primitive::Triangle>,
+        lights: Vec<lighting::LightSource>,
+    ) -> Scene {
+        let ambient_light = lighting::LightSource::calculate_ambient(&lights);
+
+        Scene {
+            materials,
+            objects,
+            lights,
+            ambient_light,
+        }
+    }
+
     pub fn find_intersection<'a>(
         &'a self,
-        ray: &la::Ray,
+        ray: &linear::Ray,
     ) -> (Option<&'a primitive::Triangle>, f64, f64, f64) {
         let mut t = f64::MAX;
         let mut intersection = Option::None;

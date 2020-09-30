@@ -1,5 +1,6 @@
-use crate::linear_algebra as la;
 use serde::{Deserialize, Serialize};
+
+use super::linear;
 
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct UV {
@@ -121,7 +122,7 @@ impl Material {
 
 #[derive(Copy, Clone, Serialize, Deserialize)]
 pub struct LightSource {
-    pub position: la::Vector,
+    pub position: linear::Vector,
     specular: Color,
     diffuse: Color,
     ambient: Color,
@@ -146,11 +147,11 @@ impl LightSource {
 pub fn calculate(
     lights: &Vec<LightSource>,
     ambient_light: Color,
-    ray: &la::Ray,
-    normal: la::Vector,
+    ray: &linear::Ray,
+    normal: linear::Vector,
     light_strength: f64,
     material: &Material,
-) -> (Color, f64, Vec<la::Ray>) {
+) -> (Color, f64, Vec<linear::Ray>) {
     let mut color = Color(0.0, 0.0, 0.0);
 
     for light in lights {
@@ -193,7 +194,7 @@ pub fn calculate(
         material.ambient,
     ));
 
-    let reflection = la::Ray {
+    let reflection = linear::Ray {
         position: ray.position,
         direction: ray.direction.negative().normalize().reflect_across(&normal),
     };
@@ -208,12 +209,12 @@ pub fn calculate(
 pub fn calculate_with_tex(
     lights: &Vec<LightSource>,
     ambient_light: Color,
-    ray: &la::Ray,
+    ray: &linear::Ray,
     uv: UV,
-    normal: la::Vector,
+    normal: linear::Vector,
     light_strength: f64,
     material: &Material,
-) -> (Color, f64, Vec<la::Ray>) {
+) -> (Color, f64, Vec<linear::Ray>) {
     let mut color = Color(0.0, 0.0, 0.0);
 
     for light in lights {
@@ -253,7 +254,7 @@ pub fn calculate_with_tex(
         material.ambient,
     ));
 
-    let reflection = la::Ray {
+    let reflection = linear::Ray {
         position: ray.position,
         direction: ray.direction.negative().normalize().reflect_across(&normal),
     };

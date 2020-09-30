@@ -1,0 +1,6 @@
+{
+    "camera_file": "examples/teapot/camera.json",
+    "lighting_file": "examples/teapot/lighting.json",
+    "model_file": "models/teapot/model.obj",
+    "output_file": "./examples/teapot/teapot.png"
+}

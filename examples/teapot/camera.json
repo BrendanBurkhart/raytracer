@@ -1,0 +1,18 @@
+{
+  "image_width": 3840,
+  "image_height": 2160,
+  "view_width": 42,
+  "view_height": 23.625,
+  "camera_position": {
+    "x": 5.0,
+    "y": 5,
+    "z": -8.0
+  },
+  "camera_target": {
+    "x": 0.0,
+    "y": 3.0,
+    "z": 0.0
+  },
+  "camera_roll": 0.0,
+  "focal_length": 18
+}

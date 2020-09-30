@@ -1,0 +1,6 @@
+{
+    "camera_file": "examples/first-logo/camera.json",
+    "lighting_file": "examples/first-logo/lighting.json",
+    "model_file": "models/first-logo/model.obj",
+    "output_file": "./examples/first-logo/first-logo.png"
+}

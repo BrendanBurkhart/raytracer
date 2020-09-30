@@ -1,24 +1,24 @@
-use crate::lighting;
-use crate::linear_algebra as la;
+use super::lighting;
+use super::linear;
 
 pub struct Triangle {
     material_id: usize,
-    normal: la::Vector,
-    edge1: la::Vector,
-    edge2: la::Vector,
-    a: la::Vector,
+    normal: linear::Vector,
+    edge1: linear::Vector,
+    edge2: linear::Vector,
+    a: linear::Vector,
     texture_map: Option<(lighting::UV, lighting::UV, lighting::UV)>,
-    normal_map: Option<(la::Vector, la::Vector, la::Vector)>,
+    normal_map: Option<(linear::Vector, linear::Vector, linear::Vector)>,
 }
 
 impl Triangle {
     pub fn new(
-        a: la::Vector,
-        b: la::Vector,
-        c: la::Vector,
+        a: linear::Vector,
+        b: linear::Vector,
+        c: linear::Vector,
         material_id: usize,
         texture_map: Option<(lighting::UV, lighting::UV, lighting::UV)>,
-        normal_map: Option<(la::Vector, la::Vector, la::Vector)>,
+        normal_map: Option<(linear::Vector, linear::Vector, linear::Vector)>,
     ) -> Triangle {
         let edge1 = b.subtract(&a);
         let edge2 = c.subtract(&a);
@@ -36,7 +36,7 @@ impl Triangle {
         }
     }
 
-    pub fn intersect(&self, ray: &la::Ray, max_range: f64) -> (bool, f64, f64, f64) {
+    pub fn intersect(&self, ray: &linear::Ray, max_range: f64) -> (bool, f64, f64, f64) {
         if self.normal.dot(&ray.direction) >= 0.0 {
             return (false, max_range, 0.0, 0.0);
         }
@@ -71,7 +71,7 @@ impl Triangle {
         return (false, max_range, 0.0, 0.0);
     }
 
-    pub fn surface_normal(&self, b: f64, c: f64) -> la::Vector {
+    pub fn surface_normal(&self, b: f64, c: f64) -> linear::Vector {
         if !self.has_normal_map() {
             return self.normal;
         }

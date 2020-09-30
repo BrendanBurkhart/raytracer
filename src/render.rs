@@ -1,10 +1,11 @@
-use crate::lens;
-use crate::lighting;
-use crate::linear_algebra as la;
-use crate::scene;
 use image;
 use rayon::prelude::*;
 use std::sync::{Arc, Mutex};
+
+use super::linear;
+use super::scene;
+
+pub mod lens;
 
 pub struct Camera {
     image_width: u32,
@@ -81,19 +82,19 @@ impl Camera {
     fn trace_ray(
         &self,
         scene: &scene::Scene,
-        ray: la::Ray,
+        ray: linear::Ray,
         light_strength: f64,
         remaining_reflections: u32,
-    ) -> lighting::Color {
+    ) -> scene::lighting::Color {
         let (intersection, t, b, c) = scene.find_intersection(&ray);
         let object = match intersection {
             Some(object) => object,
-            None => return lighting::Color::black(),
+            None => return scene::lighting::Color::black(),
         };
 
         let distance = ray.direction.scale(t);
         let intersection_point = ray.position.add(&distance);
-        let ray = la::Ray {
+        let ray = linear::Ray {
             position: intersection_point,
             direction: ray.direction,
         };
@@ -103,7 +104,7 @@ impl Camera {
         let visible_lights = self.find_visible_lights(scene, intersection_point);
 
         let (mut surface_color, light_strength, rays) = match object.has_texture() {
-            false => lighting::calculate(
+            false => scene::lighting::calculate(
                 &visible_lights,
                 scene.ambient_light,
                 &ray,
@@ -111,7 +112,7 @@ impl Camera {
                 light_strength,
                 material,
             ),
-            true => lighting::calculate_with_tex(
+            true => scene::lighting::calculate_with_tex(
                 &visible_lights,
                 scene.ambient_light,
                 &ray,
@@ -137,11 +138,11 @@ impl Camera {
     fn find_visible_lights(
         &self,
         scene: &scene::Scene,
-        position: la::Vector,
-    ) -> Vec<lighting::LightSource> {
-        let mut visible_lights: Vec<lighting::LightSource> = Vec::new();
+        position: linear::Vector,
+    ) -> Vec<scene::lighting::LightSource> {
+        let mut visible_lights: Vec<scene::lighting::LightSource> = Vec::new();
         for light in &scene.lights {
-            let light_ray = la::Ray {
+            let light_ray = linear::Ray {
                 position,
                 direction: light.position.subtract(&position),
             };

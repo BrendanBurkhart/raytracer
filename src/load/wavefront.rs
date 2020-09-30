@@ -1,24 +1,24 @@
-use crate::lighting;
-use crate::linear_algebra as la;
-use crate::primitive;
 use obj;
 use std::borrow::Borrow;
 use std::collections::HashMap;
 use std::io;
 use std::path;
 
-fn to_vector(vertex: &[f32; 3]) -> la::Vector {
-    la::Vector::new(vertex[0] as f64, vertex[1] as f64, vertex[2] as f64)
+use super::scene;
+use super::linear;
+
+fn to_vector(vertex: &[f32; 3]) -> linear::Vector {
+    linear::Vector::new(vertex[0] as f64, vertex[1] as f64, vertex[2] as f64)
 }
 
-fn to_uv(tvertex: &[f32; 2]) -> lighting::UV {
-    lighting::UV::new(tvertex[0] as f64, tvertex[1] as f64)
+fn to_uv(tvertex: &[f32; 2]) -> scene::lighting::UV {
+    scene::lighting::UV::new(tvertex[0] as f64, tvertex[1] as f64)
 }
 
-fn convert_color(color: Option<[f32; 3]>) -> lighting::Color {
+fn convert_color(color: Option<[f32; 3]>) -> scene::lighting::Color {
     match color {
-        None => lighting::Color::black(),
-        Some(color) => lighting::Color::new(color[0] as f64, color[1] as f64, color[2] as f64),
+        None => scene::lighting::Color::black(),
+        Some(color) => scene::lighting::Color::new(color[0] as f64, color[1] as f64, color[2] as f64),
     }
 }
 
@@ -29,7 +29,7 @@ fn get_dir(file: &path::Path) -> path::PathBuf {
     path
 }
 
-fn convert_material(material: &obj::Material, base_path: &path::PathBuf) -> lighting::Material {
+fn convert_material(material: &obj::Material, base_path: &path::PathBuf) ->scene:: lighting::Material {
     let specular = convert_color(material.ks);
     let diffuse = convert_color(material.kd);
     let ambient = convert_color(material.ka);
@@ -40,7 +40,7 @@ fn convert_material(material: &obj::Material, base_path: &path::PathBuf) -> ligh
     };
 
     let texture = match &material.map_kd {
-        None => lighting::Texture::new(Vec::new(), 0, 0),
+        None => scene::lighting::Texture::new(Vec::new(), 0, 0),
         Some(path) => {
             let mut full_path = path::PathBuf::from(base_path);
             full_path.push(path);
@@ -50,7 +50,7 @@ fn convert_material(material: &obj::Material, base_path: &path::PathBuf) -> ligh
             let width = image.width() as usize;
             let height = image.height() as usize;
 
-            lighting::Texture::new(data, width, height)
+            scene::lighting::Texture::new(data, width, height)
         }
     };
 
@@ -64,7 +64,7 @@ fn convert_material(material: &obj::Material, base_path: &path::PathBuf) -> ligh
         Some(ni) => ni as f64,
     };
 
-    lighting::Material::new(
+    scene::lighting::Material::new(
         specular,
         diffuse,
         ambient,
@@ -80,7 +80,7 @@ fn to_triangles(
     polygon: &Vec<obj::IndexTuple>,
     object: &obj::Obj<Vec<obj::IndexTuple>>,
     material_index: usize,
-    mesh: &mut Vec<primitive::Triangle>,
+    mesh: &mut Vec<scene::primitive::Triangle>,
 ) {
     let anchor = polygon[0];
     let a = to_vector(&object.position[anchor.0]);
@@ -119,14 +119,14 @@ fn to_triangles(
             }
         };
 
-        let t = primitive::Triangle::new(a, b, c, material_index, texture_map, normal_map);
+        let t = scene::primitive::Triangle::new(a, b, c, material_index, texture_map, normal_map);
         mesh.push(t);
     }
 }
 
 pub fn load_obj(
     file: &path::Path,
-) -> Result<(Vec<lighting::Material>, Vec<primitive::Triangle>), io::Error> {
+) -> Result<(Vec<scene::lighting::Material>, Vec<scene::primitive::Triangle>), io::Error> {
     let mut object: obj::Obj<obj::SimplePolygon> = obj::Obj::load(file)?;
     let mtls = object.load_mtls();
 
@@ -143,15 +143,15 @@ pub fn load_obj(
     let mut materials = Vec::new();
     let mut current_material = 1;
 
-    materials.push(lighting::Material::new(
-        lighting::Color::black(),
-        lighting::Color::black(),
-        lighting::Color::black(),
+    materials.push(scene::lighting::Material::new(
+        scene::lighting::Color::black(),
+        scene::lighting::Color::black(),
+        scene::lighting::Color::black(),
         0.0,
         0.0,
         1.0,
         1.45,
-        lighting::Texture::new(Vec::new(), 0, 0),
+        scene::lighting::Texture::new(Vec::new(), 0, 0),
     ));
 
     materials_index.insert("none", 0);

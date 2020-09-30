@@ -1,4 +1,4 @@
-use crate::linear_algebra as la;
+use super::linear;
 
 struct ViewPort {
     width: f64,
@@ -7,20 +7,20 @@ struct ViewPort {
 
 #[derive(Debug)]
 pub struct Scope {
-    position: la::Vector,
-    right: la::Vector,
-    up: la::Vector,
-    forward: la::Vector,
+    position: linear::Vector,
+    right: linear::Vector,
+    up: linear::Vector,
+    forward: linear::Vector,
 }
 
 impl Scope {
-    pub fn new(target: la::Vector, position: la::Vector, roll: f64) -> Scope {
+    pub fn new(target: linear::Vector, position: linear::Vector, roll: f64) -> Scope {
         let forward = target.subtract(&position).normalize();
-        let vertical = la::Vector::new(0.0, 1.0, 0.0);
+        let vertical = linear::Vector::new(0.0, 1.0, 0.0);
 
-        let right: la::Vector;
+        let right: linear::Vector;
         if forward.equals(&vertical) {
-            right = la::Vector::new(1.0, 0.0, 0.0);
+            right = linear::Vector::new(1.0, 0.0, 0.0);
         } else {
             right = forward.cross(&vertical);
         }
@@ -40,7 +40,7 @@ impl Scope {
 }
 
 pub trait Lens {
-    fn generate_light_ray(&self, x: f64, y: f64) -> la::Ray;
+    fn generate_light_ray(&self, x: f64, y: f64) -> linear::Ray;
 }
 
 pub struct OrthographicLens {
@@ -57,11 +57,11 @@ impl OrthographicLens {
 }
 
 impl Lens for OrthographicLens {
-    fn generate_light_ray(&self, x: f64, y: f64) -> la::Ray {
+    fn generate_light_ray(&self, x: f64, y: f64) -> linear::Ray {
         let horizontal = self.scope.right.scale(x * self.view_port.width * 0.5);
         let vertical = self.scope.up.scale(y * self.view_port.height * 0.5);
 
-        la::Ray {
+        linear::Ray {
             position: self.scope.position.add(&horizontal).add(&vertical),
             direction: self.scope.forward,
         }
@@ -87,14 +87,14 @@ impl PerspectiveLens {
 }
 
 impl Lens for PerspectiveLens {
-    fn generate_light_ray(&self, x: f64, y: f64) -> la::Ray {
+    fn generate_light_ray(&self, x: f64, y: f64) -> linear::Ray {
         let forward = self.scope.forward.scale(self.focal_length);
         let horizontal = self.scope.right.scale(x * self.view_port.width * 0.5);
         let vertical = self.scope.up.scale(y * self.view_port.height * 0.5);
 
         let direction = forward.add(&horizontal).add(&vertical).normalize();
 
-        la::Ray {
+        linear::Ray {
             position: self.scope.position,
             direction,
         }
