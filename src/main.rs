@@ -9,10 +9,15 @@ use std::path;
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let task = load::load_scene(path::Path::new(&args[1])).expect("Scene file should load successfully");
+    if args.len() < 2 {
+        println!("Please specify rendering task description file");
+        return;
+    }
 
-    let image = task.camera.render(&task.scene, 15);
+    let rendering_task = load::load_scene(path::Path::new(&args[1])).expect("Scene file should load successfully");
+
+    let image = rendering_task.camera.render(&rendering_task.scene, 15);
     image
-        .save_with_format(path::Path::new(&task.output_file), image::ImageFormat::Png)
+        .save_with_format(path::Path::new(&rendering_task.output_file), image::ImageFormat::Png)
         .expect("Saving output file should succeed!");
 }
