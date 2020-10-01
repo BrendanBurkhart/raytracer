@@ -39,7 +39,7 @@ impl Scope {
     }
 }
 
-pub trait Lens {
+pub trait Lens: Sync + Send {
     fn generate_light_ray(&self, x: f64, y: f64) -> linear::Ray;
 }
 
@@ -49,8 +49,11 @@ pub struct OrthographicLens {
 }
 
 impl OrthographicLens {
-    pub fn new(width: f64, height: f64, scope: Scope) -> OrthographicLens {
-        let view_port = ViewPort { width, height };
+    pub fn new(width: f64, image_width: f64, image_height: f64, scope: Scope) -> OrthographicLens {
+        let view_port = ViewPort {
+            width,
+            height: width * (image_height / image_width),
+        };
 
         OrthographicLens { view_port, scope }
     }
@@ -75,8 +78,17 @@ pub struct PerspectiveLens {
 }
 
 impl PerspectiveLens {
-    pub fn new(width: f64, height: f64, scope: Scope, focal_length: f64) -> PerspectiveLens {
-        let view_port = ViewPort { width, height };
+    pub fn new(
+        width: f64,
+        image_width: u32,
+        image_height: u32,
+        scope: Scope,
+        focal_length: f64,
+    ) -> PerspectiveLens {
+        let view_port = ViewPort {
+            width,
+            height: width * ((image_height as f64) / (image_width as f64)),
+        };
 
         PerspectiveLens {
             view_port,

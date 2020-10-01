@@ -1,6 +1,25 @@
 {
-    "camera_file": "examples/first-logo/camera.json",
-    "lighting_file": "examples/first-logo/lighting.json",
-    "model_file": "models/first-logo/model.obj",
-    "output_file": "./examples/first-logo/first-logo.png"
+    "lightingFile": "examples/first-logo/lighting.json",
+    "modelFile": "models/first-logo/model.obj",
+    "camera": {
+        "position": {
+            "x": 2.0,
+            "y": 15.0,
+            "z": 25.0
+        },
+        "target": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "roll": 0.0,
+        "focalLength": 18,
+        "viewWidth": 42
+    },
+    "output": {
+        "imageWidth": 3840,
+        "imageHeight": 2160,
+        "imageFile": "./examples/first-logo/first-logo.png"
+    },
+    "maximumReflections": 3
 }
