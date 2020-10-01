@@ -24,7 +24,7 @@ The configuration file must contain JSON with:
    - "position" specifying the camera position as a vector (`{"x": <x>, "y": <y>, "z": <z>}`),
    - "target" specifying where the camera is pointing, also as a vector,
    - "roll" specifying the angle in degrees to rotate the camera about the axis formed from position to target,
-   - "focalLength" specifying the focal length to be used
+   - "focalLength" specifying the focal length to be used.
  - "output" containing:
    - "imageWidth" specifying the pixel width of the output image,
    - "imageHeight" specifying the pixel height of the output image,
