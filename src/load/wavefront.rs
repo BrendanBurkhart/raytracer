@@ -1,5 +1,4 @@
 use obj;
-use std::borrow::Borrow;
 use std::collections::HashMap;
 use std::io;
 use std::path;
@@ -76,7 +75,7 @@ fn convert_material(material: &obj::Material, base_path: &path::PathBuf) ->scene
     )
 }
 
-fn to_triangles(
+fn tessellate(
     polygon: &Vec<obj::IndexTuple>,
     object: &obj::Obj<Vec<obj::IndexTuple>>,
     material_index: usize,
@@ -165,8 +164,7 @@ pub fn load_obj(
                 if let Some(material_ref) = &g.material {
                     material_name = &material_ref.name;
                     if !(materials_index.contains_key(material_name)) {
-                        let borrowed: &obj::Material = material_ref.borrow();
-                        materials.push(convert_material(borrowed, &resource_dir));
+                        materials.push(convert_material(material_ref, &resource_dir));
                         materials_index.insert(material_name, current_material);
                         current_material = current_material + 1;
                     }
@@ -175,7 +173,7 @@ pub fn load_obj(
                 let index = materials_index.get(material_name).unwrap_or(&0);
                 let index = (*index) as usize;
 
-                to_triangles(&polygon, &object, index, &mut mesh);
+                tessellate(&polygon, &object, index, &mut mesh);
             }
         }
     }
