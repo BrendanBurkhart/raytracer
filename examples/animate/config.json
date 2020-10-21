@@ -1,0 +1,26 @@
+{
+    "lightingFile": "examples/test/lighting.json",
+    "modelFile": "models/first-logo/model.obj",
+    "camera": {
+        "viewWidth": 42,
+        "position": {
+            "x": 2.0,
+            "y": 10.0,
+            "z": 15.0
+        },
+        "target": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "roll": 0.0,
+        "focalLength": 30
+    },
+    "output": {
+        "imageFile": "./examples/test/first-logo.png",
+        "imageWidth": 3200,
+        "imageHeight": 1800,
+        "imageFormat": "PNG"
+    },
+    "maximumReflections": 3
+}
