@@ -7,23 +7,16 @@ pub mod primitive;
 pub struct Scene {
     pub materials: Vec<lighting::Material>,
     pub objects: Vec<primitive::Triangle>,
-    pub lights: Vec<lighting::LightSource>,
-    pub ambient_light: lighting::Color,
 }
 
 impl Scene {
     pub fn new(
         materials: Vec<lighting::Material>,
         objects: Vec<primitive::Triangle>,
-        lights: Vec<lighting::LightSource>,
     ) -> Scene {
-        let ambient_light = lighting::LightSource::calculate_ambient(&lights);
-
         Scene {
             materials,
             objects,
-            lights,
-            ambient_light,
         }
     }
 

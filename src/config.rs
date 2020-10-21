@@ -1,4 +1,4 @@
-use clap::{crate_authors, App, Arg};
+use clap::{crate_authors, crate_version, App, Arg};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io;
@@ -51,6 +51,7 @@ pub fn configure() -> Result<Config, io::Error> {
     let matches = App::new("raytracer")
         .about("A simple ray tracer")
         .author(crate_authors!())
+        .version(crate_version!())
         .arg(
             Arg::new("config")
                 .about("Config file specifying models, lighting, etc.")
@@ -74,16 +75,14 @@ pub fn configure() -> Result<Config, io::Error> {
 
     let mut config = parse_config_file(path::Path::new(matches.value_of("config").unwrap()))?;
 
-    if matches.value_of("image_width").is_some() {
-        let image_width_str = matches.value_of("image_width").unwrap();
+    if let Some(ref image_width_str) = matches.value_of("image_width") {
         let image_width: u32 = image_width_str
             .parse()
             .expect("Output image width must be an unsigned integer");
         config.output.image_width = image_width;
     }
 
-    if matches.value_of("image_height").is_some() {
-        let image_height_str = matches.value_of("image_height").unwrap();
+    if let Some(ref image_height_str) = matches.value_of("image_height") {
         let image_height: u32 = image_height_str
             .parse()
             .expect("Output image height must be an unsigned integer");

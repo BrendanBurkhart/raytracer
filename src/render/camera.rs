@@ -1,8 +1,9 @@
+use super::lens;
 use super::linear;
 use super::scene;
-use std::sync::{Arc, Mutex};
+
 use rayon::prelude::*;
-use super::lens;
+use std::sync::{Arc, Mutex};
 
 const DEPTH: usize = 3;
 
@@ -13,11 +14,7 @@ pub struct Camera<'a> {
 }
 
 impl<'a> Camera<'a> {
-    pub fn new(
-        image_width: u32,
-        image_height: u32,
-        lens: &'a dyn lens::Lens,
-    ) -> Camera {
+    pub fn new(image_width: u32, image_height: u32, lens: &'a dyn lens::Lens) -> Camera {
         Camera {
             image_width,
             image_height,
@@ -25,11 +22,9 @@ impl<'a> Camera<'a> {
         }
     }
 
-    pub fn render(&self, scene: &scene::Scene, max_reflections: u32) -> image::RgbImage {
+    pub fn render(&self, scene: &scene::Scene, lighting: &scene::lighting::Lighting, max_reflections: u32) -> image::RgbImage {
         let size = DEPTH * (self.image_width as usize) * (self.image_height as usize);
-        let mut output = std::iter::repeat(0 as u8)
-            .take(size)
-            .collect::<Vec<_>>();
+        let mut output = std::iter::repeat(0 as u8).take(size).collect::<Vec<_>>();
 
         let mut rows = Vec::new();
 
@@ -43,7 +38,7 @@ impl<'a> Camera<'a> {
             remaining = new_remaining;
         }
 
-        let progress = Arc::new(Mutex::new(0));
+        // let progress = Arc::new(Mutex::new(0));
 
         rows.par_iter_mut().for_each(|(pixel_y, row)| {
             let screen_y = -2.0 * (*pixel_y as f64) / (self.image_height as f64) + 1.0;
@@ -52,7 +47,7 @@ impl<'a> Camera<'a> {
                 let screen_x = 2.0 * (pixel_x as f64) / (self.image_width as f64) - 1.0;
                 let ray = self.lens.generate_light_ray(screen_x, screen_y);
 
-                let color = self.trace_ray(scene, ray, 1.0, max_reflections).to_pixel();
+                let color = self.trace_ray(scene, lighting, ray, 1.0, max_reflections).to_pixel();
 
                 let index = DEPTH * (pixel_x as usize);
                 row[index] = color.0;
@@ -60,14 +55,14 @@ impl<'a> Camera<'a> {
                 row[index + 2] = color.2;
             }
 
-            let mut progress = progress.lock().unwrap();
-            *progress += 1;
+            // let mut progress = progress.lock().unwrap();
+            // *progress += 1;
 
-            let percent = (*progress as f64) / (self.image_height as f64) * 100.0;
-            print!("\rProgress: {}", percent as i32);
+            // let percent = (*progress as f64) / (self.image_height as f64) * 100.0;
+            //print!("\rProgress: {}", percent as i32);
         });
 
-        println!("\nFinished");
+        //println!("\nFinished");
 
         image::ImageBuffer::from_raw(self.image_width, self.image_height, output)
             .expect("Should create image successfully")
@@ -76,6 +71,7 @@ impl<'a> Camera<'a> {
     fn trace_ray(
         &self,
         scene: &scene::Scene,
+        lighting: &scene::lighting::Lighting,
         ray: linear::Ray,
         light_strength: f64,
         remaining_reflections: u32,
@@ -95,12 +91,12 @@ impl<'a> Camera<'a> {
         let normal = object.surface_normal(b, c);
         let material = &scene.materials[object.material_id()];
 
-        let visible_lights = self.find_visible_lights(scene, intersection_point);
+        let visible_lights = self.find_visible_lights(scene, lighting, intersection_point);
 
         let (mut surface_color, light_strength, rays) = match object.has_texture() {
             false => scene::lighting::calculate(
                 &visible_lights,
-                scene.ambient_light,
+                lighting.ambient_light,
                 &ray,
                 normal,
                 light_strength,
@@ -108,7 +104,7 @@ impl<'a> Camera<'a> {
             ),
             true => scene::lighting::calculate_with_tex(
                 &visible_lights,
-                scene.ambient_light,
+                lighting.ambient_light,
                 &ray,
                 object.uv(b, c),
                 normal,
@@ -120,7 +116,7 @@ impl<'a> Camera<'a> {
         if remaining_reflections > 0 {
             for ray in rays {
                 let reflected_color =
-                    self.trace_ray(scene, ray, light_strength, remaining_reflections - 1);
+                    self.trace_ray(scene, lighting, ray, light_strength, remaining_reflections - 1);
 
                 surface_color.add(reflected_color);
             }
@@ -132,10 +128,11 @@ impl<'a> Camera<'a> {
     fn find_visible_lights(
         &self,
         scene: &scene::Scene,
+        lighting: &scene::lighting::Lighting,
         position: linear::Vector,
     ) -> Vec<scene::lighting::LightSource> {
         let mut visible_lights: Vec<scene::lighting::LightSource> = Vec::new();
-        for light in &scene.lights {
+        for light in &lighting.lights {
             let light_ray = linear::Ray {
                 position,
                 direction: light.position.subtract(&position),

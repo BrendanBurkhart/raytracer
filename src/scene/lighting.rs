@@ -265,3 +265,51 @@ pub fn calculate_with_tex(
         vec![reflection],
     )
 }
+
+pub struct Lighting {
+    pub lights: Vec<LightSource>,
+    pub ambient_light: Color,
+}
+
+impl Lighting {
+    pub fn new(
+        lights: Vec<LightSource>,
+    ) -> Lighting {
+        let ambient_light = LightSource::calculate_ambient(&lights);
+
+        Lighting {
+            lights,
+            ambient_light,
+        }
+    }
+
+    pub fn rotate(self: &Lighting, theta: f64) -> Lighting {
+        let mut rotated_lights = Vec::with_capacity(self.lights.len());
+
+        let sin = theta.sin();
+        let cos  = theta.cos();
+
+        let xto = linear::Vector::new(cos, 0.0, -sin);
+        let yto = linear::Vector::new(0.0, 1.0, 0.0);
+        let zto = linear::Vector::new(sin, 0.0, sin);
+
+        for light in &self.lights {
+            let x = light.position.dot(&xto);
+            let y = light.position.dot(&yto);
+            let z = light.position.dot(&zto);
+
+            let position = linear::Vector::new(x, y, z);
+
+            let transformed = LightSource {
+                position,
+                ambient: light.ambient,
+                diffuse: light.diffuse,
+                specular: light.specular,
+            };
+
+            rotated_lights.push(transformed);
+        }
+
+        Lighting::new(rotated_lights)
+    }
+}

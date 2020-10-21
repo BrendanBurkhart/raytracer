@@ -13,18 +13,16 @@ struct LightingData {
     lights: Vec<scene::lighting::LightSource>,
 }
 
-fn parse_lights(lighting_file: &str) -> Result<Vec<scene::lighting::LightSource>, io::Error> {
-    let f = fs::File::open(path::Path::new(lighting_file))?;
-    let data: LightingData = serde_json::from_reader(f)?;
+pub fn lighting(lighting_file: &str) -> Result<scene::lighting::Lighting, io::Error> {
+    let f = fs::File::open(path::Path::new(lighting_file)).expect("Lighting config should load correctly");
+    let data: LightingData = serde_json::from_reader(f).expect("Lighting config should load correctly");
 
-    Ok(data.lights)
+    Ok(scene::lighting::Lighting::new(data.lights))
 }
 
-pub fn scene(lighting_file: &str, model_file: &str) -> Result<scene::Scene, io::Error> {
-    let lights = parse_lights(&lighting_file).expect("Lighting config should load correctly");
-
+pub fn scene(model_file: &str) -> Result<scene::Scene, io::Error> {
     let (materials, objects) = wavefront::load_obj(path::Path::new(&model_file))
         .expect("OBJ/MTL model files should load correctly");
 
-    Ok(scene::Scene::new(materials, objects, lights))
+    Ok(scene::Scene::new(materials, objects))
 }
