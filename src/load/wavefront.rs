@@ -53,24 +53,12 @@ fn convert_material(material: &obj::Material, base_path: &path::PathBuf) ->scene
         }
     };
 
-    let transparency = match material.d {
-        None => 1.0,
-        Some(d) => d as f64,
-    };
-
-    let index_of_refraction = match material.ni {
-        None => 1.45,
-        Some(ni) => ni as f64,
-    };
-
     scene::lighting::Material::new(
         specular,
         diffuse,
         ambient,
         alpha,
         0.1,
-        transparency,
-        index_of_refraction,
         texture,
     )
 }
@@ -148,8 +136,6 @@ pub fn load_obj(
         scene::lighting::Color::black(),
         0.0,
         0.0,
-        1.0,
-        1.45,
         scene::lighting::Texture::new(Vec::new(), 0, 0),
     ));
 

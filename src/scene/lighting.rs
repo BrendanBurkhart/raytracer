@@ -91,8 +91,6 @@ pub struct Material {
     ambient: Color,
     alpha: f64,
     reflectance: f64,
-    transparency: f64,
-    index_of_refraction: f64,
     texture: Texture,
 }
 
@@ -103,8 +101,6 @@ impl Material {
         ambient: Color,
         alpha: f64,
         reflectance: f64,
-        transparency: f64,
-        index_of_refraction: f64,
         texture: Texture,
     ) -> Material {
         Material {
@@ -113,8 +109,6 @@ impl Material {
             ambient,
             alpha,
             reflectance,
-            transparency,
-            index_of_refraction,
             texture,
         }
     }
